@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrolling Slideshow with Background Video</title>
+    <style>
+        /* Basic Page Styles */
+        body {
+            margin: 0;
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+            color: #f0f0f0;
+        }
+
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        /* Helper sections for scrolling space */
+        .scroll-spacer {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-color: #111;
+        }
+
+        .scroll-spacer h1 {
+            font-size: 3rem;
+            font-weight: normal;
+        }
+
+        /* The main section that will be pinned */
+        #slideshow-section {
+            height: 100vh;
+            width: 100%;
+            overflow: hidden; 
+            background-color: #1a1a1a;
+        }
+
+        /* This container holds all slides horizontally */
+        .slides-container {
+            width: 400%; 
+            height: 100%;
+            display: flex;
+            flex-wrap: nowrap; 
+        }
+        
+        /* Individual Slide Styling */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3vw;
+            padding: 0 5vw;
+            box-sizing: border-box; 
+            position: relative;
+        }
+        
+        .image-wrapper {
+            width: 45%;
+            height: 70vh;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slide-description {
+            width: 40%;
+        }
+
+        .slide-description h2 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .slide-description p {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            opacity: 0.8;
+        }
+        
+        .word-wrapper {
+            display: inline-block;
+            overflow: hidden;
+        }
+
+        .word {
+            display: inline-block;
+            transform: translateY(110%); 
+        }
+    </style>
+</head>
+<body>
+
+    <video 
+      id="background-video" 
+      src="videos/video2.mp4" 
+      autoplay 
+      muted 
+      loop 
+      playsinline>
+    </video>
+
+    <header class="scroll-spacer">
+        <h1>Pandal Hopping 2025</h1>
+        <p>Tour begins👇</p>
+    </header>
+
+    <section id="slideshow-section">
+        <div class="slides-container">
+            <div class="slide">
+                <div class="image-wrapper">
+                    <img src="https://i.pinimg.com/736x/aa/60/33/aa603387cd9878bd4d7536116513602a.jpg" alt="Sreebhumi Pandal">
+                </div>
+                <div class="slide-description">
+                    <h2>Sreebhumi</h2>
+                    <p class="reveal-text">Known for its breathtaking and grand replicas of world-famous monuments, this pandal never fails to draw massive crowds and leave visitors in awe.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="image-wrapper">
+                    <img src="https://i.pinimg.com/736x/5c/5a/2f/5c5a2f164e3d541b8f16e3b54a84aaa2.jpg" alt="Traditional Bonedi Bari Puja">
+                </div>
+                <div class="slide-description">
+                    <h2>Bonedi Bari</h2>
+                    <p class="reveal-text">Stepping away from grand themes, the traditional pujas in Kolkata's old aristocratic homes offer a glimpse into centuries-old customs and heartfelt devotion.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="image-wrapper">
+                    <img src="https://media.istockphoto.com/id/1492837126/photo/durga-idol-eye-making-by-a-man-closeup-stock-photo.jpg?s=1024x1024&w=is&k=20&c=EL8VMsU361m-czb458Nq-WD5XRNFPRUmj9Byfxnllqo=" alt="Kumartuli Park Pandal Artistry">
+                </div>
+                <div class="slide-description">
+                    <h2>Kumartuli Park</h2>
+                    <p class="reveal-text">Nestled near the potters' quarter, this pandal often showcases the raw, artistic talent of the idol makers themselves, celebrating the craft behind the festival.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="image-wrapper">
+                    <img src="https://images.hindustantimes.com/img/2022/09/30/1600x900/durga_puja_1664502025274_1664502025551_1664502025551.jpg" alt="Kolkata streets illuminated for Durga Puja">
+                </div>
+                <div class="slide-description">
+                    <h2>The City of Joy</h2>
+                    <p class="reveal-text">Beyond the pandals, the entire city transforms into a gallery of light. Every street and alleyway glows, creating an unforgettable atmosphere of pure celebration.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="scroll-spacer">
+        <h1>Tour Complete</h1>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.registerPlugin(ScrollTrigger);
+            const slides = gsap.utils.toArray(".slide");
+            const container = document.querySelector(".slides-container");
+            const horizontalScrollTween = gsap.to(container, {
+                xPercent: -100 * (slides.length - 1),
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "#slideshow-section",
+                    pin: true,
+                    scrub: 1,
+                    end: () => "+=" + (container.offsetWidth - window.innerWidth),
+                }
+            });
+            slides.forEach((slide) => {
+                const textP = slide.querySelector(".reveal-text");
+                if (!textP) return;
+                const words = textP.innerText.split(/\s+/);
+                textP.innerHTML = words.map(word => `<span class="word-wrapper"><span class="word">${word}</span></span>`).join(' ');
+                const wordSpans = textP.querySelectorAll(".word");
+                gsap.to(wordSpans, {
+                    y: "0%",
+                    stagger: 0.05,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: slide,
+                        containerAnimation: horizontalScrollTween,
+                        start: "left 60%",
+                        end: "center 50%",
+                        toggleActions: "play reverse play reverse",
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

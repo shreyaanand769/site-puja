@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Durga Puja AI Image Gallery</title>
+    <!-- We'll use a <style> tag to replicate the Tailwind CSS classes -->
+    <style>
+        :root {
+            --bg-dark: #111827;
+            --bg-medium: #1f2937;
+            --bg-light: #374151;
+            --bg-header: rgba(55, 65, 81, 0.5);
+            --border-color: #4b5563;
+            --text-white: #f9fafb;
+            --text-gray: #d1d5db;
+            --text-light-gray: #9ca3af;
+            --accent-orange: #fb923c;
+            --accent-orange-dark: #f97316;
+            --accent-orange-hover: #ea580c;
+            --accent-red: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            color: var(--text-white);
+            margin: 0;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #meet-puja-btn {
+            padding: 0.75rem 1.5rem;
+            background-color: #ff4d4d;
+            color: #fff;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 2rem auto;
+            display: block;
+        }
+        
+        #gallery-container {
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 42rem; /* max-w-2xl */
+        }
+        
+        .gallery-wrapper {
+            background-color: var(--bg-medium);
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+            overflow: hidden;
+        }
+
+        .gallery-header {
+            padding: 1.5rem;
+            background-color: var(--bg-header);
+            text-align: center;
+        }
+
+        .gallery-header h1 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            color: var(--accent-orange);
+            margin: 0;
+        }
+
+        .gallery-header p {
+            color: var(--text-gray);
+            margin-top: 0.5rem;
+        }
+
+        .gallery-main {
+            padding: 1.5rem;
+        }
+
+        .image-display {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: var(--bg-dark);
+            border-radius: 0.75rem; /* rounded-xl */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            border: 4px solid var(--border-color);
+        }
+
+        .image-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spinner {
+            width: 4rem; /* w-16 */
+            height: 4rem; /* h-16 */
+            border: 8px dashed var(--accent-orange-dark);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loader p {
+            margin-top: 1rem;
+            font-size: 1.125rem; /* text-lg */
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            text-align: center;
+            color: var(--accent-red);
+            padding: 1rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .image-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600;
+            color: var(--accent-orange);
+        }
+
+        .image-counter {
+            color: var(--text-light-gray);
+            margin-top: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+            height: 2.5rem; /* h-10 */
+        }
+        
+        .gallery-footer {
+            padding: 1.5rem;
+            background-color: var(--bg-medium);
+            border-top: 1px solid var(--border-color);
+        }
+
+        #next-image-btn {
+            width: 100%;
+            background-color: var(--accent-orange-dark);
+            color: white;
+            font-weight: 700;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        #next-image-btn:hover:not(:disabled) {
+            background-color: var(--accent-orange-hover);
+            transform: scale(1.05);
+        }
+        
+        #next-image-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.5);
+        }
+
+        #next-image-btn:disabled {
+            background-color: var(--bg-light);
+            cursor: not-allowed;
+        }
+
+    </style>
+</head>
+<body>
+
+    <button id="meet-puja-btn">Meet Puja</button>
+    
+    <!-- This container is where the gallery will be injected -->
+    <div id="gallery-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA & STATE ---
+            const prompts = [
+                "An award-winning, large, and attractive Durga Puja pandal in Kolkata at night...",
+                "A beautifully crafted, traditional Durga murti (idol) in a 'sabeki' style...",
+                "A stunningly modern and artistic Durga Puja pandal with a unique, abstract theme...",
+                "The vibrant and festive environment inside a crowded Durga Puja pandal...",
+                "A Bengali home beautifully decorated for Durga Puja...",
+                "A dynamic and energetic scene of Dhunuchi dance during Durga Puja celebrations...",
+                "A vibrant Navratri Garba celebration in a large open ground...",
+                "A joyous and emotional scene of Sindoor Khela on the last day of Durga Puja...",
+                "A close-up shot of the serene and powerful face of a Durga murti...",
+                "A wide-angle view of a street in Kolkata during Durga Puja at night..."
+            ];
+
+            const titles = [
+                "Attractive Durga Pandal", "Traditional Durga Murti", "Modern Artistic Pandal",
+                "Festive Pandal Environment", "Festive Home Decoration", "Dhunuchi Dance Celebration",
+                "Navratri Garba Night", "Joyous Sindoor Khela", "Divine Face of Durga",
+                "Illuminated Kolkata Street"
+            ];
+
+            let state = {
+                showGenerator: false,
+                imageIndex: 0,
+                imageUrl: null,
+                loading: true,
+                error: null,
+                initialGenerationDone: false,
+            };
+
+            // --- DOM REFERENCES ---
+            const meetPujaBtn = document.getElementById('meet-puja-btn');
+            const galleryContainer = document.getElementById('gallery-container');
+            
+            // --- RENDER FUNCTION ---
+            // This function updates the DOM based on the current state
+            const render = () => {
+                // Update the main button text
+                meetPujaBtn.textContent = state.showGenerator ? "Hide Gallery" : "Meet Puja";
+
+                if (!state.showGenerator) {
+                    galleryContainer.innerHTML = ''; // Clear the gallery if hidden
+                    return;
+                }
+                
+                let imageContent = '';
+                if (state.loading) {
+                    imageContent = `
+                        <div class="loader">
+                            <div class="spinner"></div>
+                            <p>Generating Image...</p>
+                        </div>`;
+                } else if (state.error) {
+                    imageContent = `
+                        <div class="error-message">
+                            <p><strong>Error:</strong> ${state.error}</p>
+                            <p>Please add your API key to generate images.</p>
+                        </div>`;
+                } else {
+                    imageContent = `<img src="${state.imageUrl}" alt="${prompts[state.imageIndex]}" />`;
+                }
+                
+                const nextImageNumber = (state.imageIndex + 1) % prompts.length + 1;
+                const buttonText = state.loading ? 'Generating...' : `Next Image (${nextImageNumber}/${prompts.length})`;
+
+                // The entire gallery UI is built here
+                galleryContainer.innerHTML = `
+                    <div class="gallery-wrapper">
+                        <header class="gallery-header">
+                            <h1>Durga Puja Image Gallery</h1>
+                            <p>Celebrating the spirit of the grand festival</p>
+                        </header>
+                        
+                        <main class="gallery-main">
+                            <div class="image-display">
+                                ${imageContent}
+                            </div>
+                            <div class="text-center">
+                                <h2 class="image-title">${titles[state.imageIndex]}</h2>
+                                <p class="image-counter">Image ${state.imageIndex + 1} of ${prompts.length}</p>
+                            </div>
+                        </main>
+                        
+                        <footer class="gallery-footer">
+                            <button id="next-image-btn" ${state.loading ? 'disabled' : ''}>
+                                ${buttonText}
+                            </button>
+                        </footer>
+                    </div>
+                `;
+
+                // Re-add event listener to the newly created button
+                document.getElementById('next-image-btn').addEventListener('click', handleNextImage);
+            };
+
+            // --- IMAGE GENERATION LOGIC ---
+            const generateImage = async (prompt) => {
+                state.loading = true;
+                state.error = null;
+                render(); // Update UI to show loader
+
+                try {
+                    const apiKey = ""; // Keep this empty
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                    
+                    // Simulating a delay and error since no API key is provided.
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    throw new Error('API Key is missing. Cannot generate image.');
+
+                    // In a real scenario with a key, the code would be:
+                    /*
+                    const response = await fetch(apiUrl, { ... });
+                    const result = await response.json();
+                    if (result.predictions && result.predictions[0].bytesBase64Encoded) {
+                        state.imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    } else {
+                        throw new Error('Image generation failed.');
+                    }
+                    */
+
+                } catch (err) {
+                    console.error("Error generating image:", err);
+                    state.error = err.message || 'Failed to generate image. Please try again.';
+                } finally {
+                    state.loading = false;
+                    render(); // Update UI to show result or error
+                }
+            };
+            
+            // --- EVENT HANDLERS ---
+            const handleNextImage = () => {
+                const nextIndex = (state.imageIndex + 1) % prompts.length;
+                state.imageIndex = nextIndex;
+                generateImage(prompts[nextIndex]);
+            };
+
+            meetPujaBtn.addEventListener('click', () => {
+                state.showGenerator = !state.showGenerator;
+                
+                // If we are showing the generator for the first time, generate the initial image
+                if (state.showGenerator && !state.initialGenerationDone) {
+                    state.initialGenerationDone = true;
+                    generateImage(prompts[0]);
+                } else {
+                    render(); // Otherwise, just render the current state
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
