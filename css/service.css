@@ -39,10 +39,9 @@
   display: none;
 }
 
-/* Text Reveal (blur to clear) */
 .reveal-text {
   font-size: 1.2rem;
-  color: #eee;
+  color: #fffbfb;
   filter: blur(6px);
   opacity: 0;
   transition: all 1s ease;
